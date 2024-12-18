@@ -1,21 +1,30 @@
-import asyncio
-
 from orko import orko
 
 
+@orko
+def syncFunction(x):
+    """An example synchronous function."""
+    a = x + 2
+
+    if a % 2 == 0:
+        b = 74
+    else:
+        b = 12
+
+    a += b
+
+    print("Heyoooo!")
+    return a
+
+'''
 @orko
 async def asyncFunction(x):
     """An example asynchronous function."""
     a = x * 2
     return a + 1
 
-@orko
-def syncFunction(x):
-    """An example synchronous function."""
-    a = x + 2
-    return a
 
-
+Global variables currently don't work, as we don't know how to have them be present in the call to the modified function
 globalVariable = 0
 
 @orko
@@ -25,10 +34,11 @@ def mutatesGlobal(x, y):
     globalVariable += x
     a = x + y
     return a
+'''
 
-async def main():
-    await asyncFunction(5)
+def main():
     syncFunction(3)
-    mutatesGlobal(11, 8)
+    # await asyncFunction(5)
+    # mutatesGlobal(11, 8)
 
-asyncio.run(main())
+main()

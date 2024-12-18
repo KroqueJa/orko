@@ -1,6 +1,3 @@
-import asyncio
-
-
 class OrkoContext:
     _instance = None
 
@@ -13,7 +10,11 @@ class OrkoContext:
             cls._instance = cls()
         return cls._instance
 
-    async def addTrace(self, trace):
-        # Simulate an async operation (e.g., database or network call)
-        print(f"Adding trace asynchronously: {trace}")
+    # TODO: Make async when appropriate
+    def addTrace(self, trace):
         self.traces.append(trace)
+
+    def tellStory(self):
+        for trace in self.traces:
+            if not "orkoResult" in trace:
+                print(trace)
