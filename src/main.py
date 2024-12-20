@@ -11,6 +11,7 @@ def syncFunction(x):
     else:
         b = 12
 
+    b += 11
     a += b
 
     print("Heyoooo!")

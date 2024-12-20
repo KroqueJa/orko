@@ -1,10 +1,10 @@
 import ast
-import asyncio
 from functools import wraps
 import inspect
 import re
 
 from .orko_context import OrkoContext
+from .parse.assignment_emitter import AssignmentEmitter
 
 
 def orko(f):
@@ -13,74 +13,6 @@ def orko(f):
     """
 
     def emitAssignments(tree):
-        class AssignmentEmitter(ast.NodeTransformer):
-            def visit_Assign(self, node):
-                targets = [
-                    target.id for target in node.targets if isinstance(target, ast.Name)
-                ]
-
-                trace_statements = []
-                for target in targets:
-                    formatted_value = ast.FormattedValue(
-                        value=ast.Name(id=target, ctx=ast.Load()),
-                        conversion=-1,
-                        format_spec=None,
-                    )
-
-                    joined_str = ast.JoinedStr(
-                        values=[
-                            ast.Constant(
-                                value=f"assignment: {target} = "
-                            ),  # Literal string
-                            formatted_value,
-                        ]
-                    )
-
-                    trace_call = ast.Call(
-                        func=ast.Attribute(
-                            value=ast.Name(id="context", ctx=ast.Load()),  # Use the `context` instance
-                            attr="addTrace",
-                            ctx=ast.Load(),
-                        ),
-                        args=[joined_str],
-                        keywords=[],
-                    )
-
-                    trace_statements.append(ast.Expr(value=trace_call))
-
-                return [node] + trace_statements
-
-            def visit_AugAssign(self, node):
-                # Handle augmented assignments (a += b)
-                target = node.target
-                if isinstance(target, ast.Name):
-                    formatted_value = ast.FormattedValue(
-                        value=ast.Name(id=target.id, ctx=ast.Load()),
-                        conversion=-1,
-                        format_spec=None,
-                    )
-
-                    joined_str = ast.JoinedStr(
-                        values=[
-                            ast.Constant(
-                                value=f"augmented assignment: {target.id} = "
-                            ),  # Literal string
-                            formatted_value,
-                        ]
-                    )
-
-                    trace_call = ast.Call(
-                        func=ast.Attribute(
-                            value=ast.Name(id="context", ctx=ast.Load()),
-                            attr="addTrace",
-                            ctx=ast.Load(),
-                        ),
-                        args=[joined_str],
-                        keywords=[],
-                    )
-
-                    return [node, ast.Expr(value=trace_call)]
-                return node
 
         # Apply the transformer to the AST
         tree = AssignmentEmitter().visit(tree)
